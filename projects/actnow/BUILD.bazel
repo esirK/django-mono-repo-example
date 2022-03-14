@@ -1,0 +1,38 @@
+load("@rules_python//python:defs.bzl", "py_binary")
+load("@io_bazel_rules_docker//python3:image.bzl", "py3_image")
+load("@io_bazel_rules_docker//container:container.bzl","container_image",)
+
+py_binary(
+    name="actnow",
+    srcs=["manage.py"],
+    main="manage.py",
+    deps=[
+        "//projects/actnow/actnow:actnow",
+    ]
+)
+
+py3_image(
+    name="actnow_image",
+    srcs=["manage.py"],
+    main="manage.py",
+    deps=[
+        "//projects/actnow/actnow:actnow",
+    ],
+    base=":python3.10",
+)
+
+container_image(
+    name="python3.10",
+    visibility=["//visibility:public"],
+    base="@python3.10-base//image",
+    ports = [
+        "8000",
+    ],
+    env={
+        "PYTHONUNBUFFERED": "1",
+    },
+    symlinks={
+        "/usr/bin/python": "/usr/local/bin/python",  # To work as base for py3_image
+        "/usr/bin/python3": "/usr/local/bin/python3"  # To work as base for py3_image
+    },
+)
